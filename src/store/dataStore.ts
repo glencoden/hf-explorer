@@ -1,21 +1,17 @@
 import { create } from 'zustand'
+import { jsonToFlatMap } from '../helpers/json-to-flat-map'
+import type { ParsedJson } from '../types/ParsedJson'
 
 type State = {
     flatData: Record<string, string> // path value pair
-    addEntry: (entry: { path: string; value: string }) => void
+    setFlatData: (data: ParsedJson) => void
     selectedPath: string
     setSelectedPath: (path: string) => void
 }
 
 export const useDataStore = create<State>((set) => ({
     flatData: {},
-    addEntry: (entry) =>
-        set((state) => ({
-            flatData: {
-                ...state.flatData,
-                [entry.path]: entry.value,
-            },
-        })),
+    setFlatData: (data) => set({ flatData: jsonToFlatMap(data) }),
     selectedPath: '',
     setSelectedPath: (path) => set({ selectedPath: path }),
 }))

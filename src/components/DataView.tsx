@@ -31,11 +31,7 @@ export default function DataView({
     if (typeof data === 'string') {
         return (
             <DataViewLine level={level}>
-                <DataViewButton
-                    currentKey={currentKey}
-                    path={path}
-                    value={data}
-                />
+                <DataViewButton currentKey={currentKey} path={path} />
                 <span>'{data}',</span>
             </DataViewLine>
         )
@@ -44,11 +40,7 @@ export default function DataView({
     if (typeof data === 'number' || typeof data === 'boolean') {
         return (
             <DataViewLine level={level}>
-                <DataViewButton
-                    currentKey={currentKey}
-                    path={path}
-                    value={data.toString()}
-                />
+                <DataViewButton currentKey={currentKey} path={path} />
                 <span>{data.toString()},</span>
             </DataViewLine>
         )
@@ -57,11 +49,7 @@ export default function DataView({
     if (data === null) {
         return (
             <DataViewLine level={level}>
-                <DataViewButton
-                    currentKey={currentKey}
-                    path={path}
-                    value='null'
-                />
+                <DataViewButton currentKey={currentKey} path={path} />
                 <span>null,</span>
             </DataViewLine>
         )
@@ -71,11 +59,7 @@ export default function DataView({
         return (
             <>
                 <DataViewLine level={level}>
-                    <DataViewButton
-                        currentKey={currentKey}
-                        path={path}
-                        value='undefined'
-                    />
+                    <DataViewButton currentKey={currentKey} path={path} />
                     &#91;&nbsp;
                 </DataViewLine>
 
@@ -98,11 +82,7 @@ export default function DataView({
     return (
         <>
             <DataViewLine level={level}>
-                <DataViewButton
-                    currentKey={currentKey}
-                    path={path}
-                    value='undefined'
-                />
+                <DataViewButton currentKey={currentKey} path={path} />
                 &#123;&nbsp;
             </DataViewLine>
 

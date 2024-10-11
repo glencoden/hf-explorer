@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import DataView from './components/DataView'
 import Input from './components/Input'
 import Label from './components/Label'
@@ -11,8 +11,13 @@ export default function JsonExplorer({
     data: ParsedJson
 }>) {
     const flatData = useDataStore((state) => state.flatData)
+    const setFlatData = useDataStore((state) => state.setFlatData)
     const selectedPath = useDataStore((state) => state.selectedPath)
     const setSelectedPath = useDataStore((state) => state.setSelectedPath)
+
+    useEffect(() => {
+        setFlatData(data)
+    }, [data])
 
     const selectedValue = flatData[selectedPath]
 

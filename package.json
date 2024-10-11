@@ -4,7 +4,7 @@
     "scripts": {
         "build": "tailwindcss -i src/tailwind.css -o dist/main.css --minify && esbuild src/index.tsx --bundle --outfile=dist/index.js && cp preview/index.html dist/index.html",
         "dev:tailwind": "tailwindcss -i src/tailwind.css -o dist/main.css --watch",
-        "dev:esbuild": "pnpm build --watch",
+        "dev:esbuild": "esbuild src/index.tsx --bundle --outfile=dist/index.js --watch",
         "dev": "run-p dev:*",
         "lint": "prettier --write src/**/*.{ts,tsx}"
     },

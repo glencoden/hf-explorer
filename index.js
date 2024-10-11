@@ -23639,15 +23639,34 @@
   };
   var create = (createState) => createState ? createImpl(createState) : createImpl;
 
+  // src/helpers/json-to-flat-map.ts
+  var jsonToFlatMap = (json) => {
+    const flatMap = {};
+    const traverse = (data, path) => {
+      if (typeof data === "string") {
+        flatMap[path] = data;
+      } else if (typeof data === "number" || typeof data === "boolean") {
+        flatMap[path] = data.toString();
+      } else if (data === null) {
+        flatMap[path] = "null";
+      } else if (Array.isArray(data)) {
+        data.forEach((entry, index) => {
+          traverse(entry, `${path}[${index}]`);
+        });
+      } else {
+        Object.entries(data).forEach(([key, value]) => {
+          traverse(value, `${path}.${key}`);
+        });
+      }
+    };
+    traverse(json, "res");
+    return flatMap;
+  };
+
   // src/store/dataStore.ts
   var useDataStore = create((set) => ({
     flatData: {},
-    addEntry: (entry) => set((state) => ({
-      flatData: {
-        ...state.flatData,
-        [entry.path]: entry.value
-      }
-    })),
+    setFlatData: (data) => set({ flatData: jsonToFlatMap(data) }),
     selectedPath: "",
     setSelectedPath: (path) => set({ selectedPath: path })
   }));
@@ -23655,17 +23674,9 @@
   // src/components/DataViewButton.tsx
   function DataViewButton({
     currentKey,
-    path,
-    value
+    path
   }) {
-    const addEntry = useDataStore((state) => state.addEntry);
     const setSelectedPath = useDataStore((state) => state.setSelectedPath);
-    (0, import_react2.useEffect)(() => {
-      if (!currentKey) {
-        return;
-      }
-      addEntry({ path, value });
-    }, [currentKey, path, value]);
     if (!currentKey) {
       return null;
     }
@@ -23701,44 +23712,16 @@
       return /* @__PURE__ */ import_react4.default.createElement("div", null, /* @__PURE__ */ import_react4.default.createElement("h4", { className: "mb-2 text-sm font-normal leading-none text-slate-500" }, "Response"), /* @__PURE__ */ import_react4.default.createElement("div", { className: "flex flex-col overflow-hidden rounded-md border border-slate-400 p-4" }, /* @__PURE__ */ import_react4.default.createElement(DataView, { data, path: "res" })));
     }
     if (typeof data === "string") {
-      return /* @__PURE__ */ import_react4.default.createElement(DataViewLine, { level }, /* @__PURE__ */ import_react4.default.createElement(
-        DataViewButton,
-        {
-          currentKey,
-          path,
-          value: data
-        }
-      ), /* @__PURE__ */ import_react4.default.createElement("span", null, "'", data, "',"));
+      return /* @__PURE__ */ import_react4.default.createElement(DataViewLine, { level }, /* @__PURE__ */ import_react4.default.createElement(DataViewButton, { currentKey, path }), /* @__PURE__ */ import_react4.default.createElement("span", null, "'", data, "',"));
     }
     if (typeof data === "number" || typeof data === "boolean") {
-      return /* @__PURE__ */ import_react4.default.createElement(DataViewLine, { level }, /* @__PURE__ */ import_react4.default.createElement(
-        DataViewButton,
-        {
-          currentKey,
-          path,
-          value: data.toString()
-        }
-      ), /* @__PURE__ */ import_react4.default.createElement("span", null, data.toString(), ","));
+      return /* @__PURE__ */ import_react4.default.createElement(DataViewLine, { level }, /* @__PURE__ */ import_react4.default.createElement(DataViewButton, { currentKey, path }), /* @__PURE__ */ import_react4.default.createElement("span", null, data.toString(), ","));
     }
     if (data === null) {
-      return /* @__PURE__ */ import_react4.default.createElement(DataViewLine, { level }, /* @__PURE__ */ import_react4.default.createElement(
-        DataViewButton,
-        {
-          currentKey,
-          path,
-          value: "null"
-        }
-      ), /* @__PURE__ */ import_react4.default.createElement("span", null, "null,"));
+      return /* @__PURE__ */ import_react4.default.createElement(DataViewLine, { level }, /* @__PURE__ */ import_react4.default.createElement(DataViewButton, { currentKey, path }), /* @__PURE__ */ import_react4.default.createElement("span", null, "null,"));
     }
     if (Array.isArray(data)) {
-      return /* @__PURE__ */ import_react4.default.createElement(import_react4.default.Fragment, null, /* @__PURE__ */ import_react4.default.createElement(DataViewLine, { level }, /* @__PURE__ */ import_react4.default.createElement(
-        DataViewButton,
-        {
-          currentKey,
-          path,
-          value: "undefined"
-        }
-      ), "[\xA0"), data.map((entry, index) => /* @__PURE__ */ import_react4.default.createElement(
+      return /* @__PURE__ */ import_react4.default.createElement(import_react4.default.Fragment, null, /* @__PURE__ */ import_react4.default.createElement(DataViewLine, { level }, /* @__PURE__ */ import_react4.default.createElement(DataViewButton, { currentKey, path }), "[\xA0"), data.map((entry, index) => /* @__PURE__ */ import_react4.default.createElement(
         DataView,
         {
           key: `${entry}-${index}`,
@@ -23748,14 +23731,7 @@
         }
       )), /* @__PURE__ */ import_react4.default.createElement(DataViewLine, { level }, /* @__PURE__ */ import_react4.default.createElement("span", null, "]")));
     }
-    return /* @__PURE__ */ import_react4.default.createElement(import_react4.default.Fragment, null, /* @__PURE__ */ import_react4.default.createElement(DataViewLine, { level }, /* @__PURE__ */ import_react4.default.createElement(
-      DataViewButton,
-      {
-        currentKey,
-        path,
-        value: "undefined"
-      }
-    ), "{\xA0"), Object.entries(data).map(([key, value]) => /* @__PURE__ */ import_react4.default.createElement(
+    return /* @__PURE__ */ import_react4.default.createElement(import_react4.default.Fragment, null, /* @__PURE__ */ import_react4.default.createElement(DataViewLine, { level }, /* @__PURE__ */ import_react4.default.createElement(DataViewButton, { currentKey, path }), "{\xA0"), Object.entries(data).map(([key, value]) => /* @__PURE__ */ import_react4.default.createElement(
       DataView,
       {
         key,
@@ -23796,8 +23772,12 @@
     data
   }) {
     const flatData = useDataStore((state) => state.flatData);
+    const setFlatData = useDataStore((state) => state.setFlatData);
     const selectedPath = useDataStore((state) => state.selectedPath);
     const setSelectedPath = useDataStore((state) => state.setSelectedPath);
+    (0, import_react7.useEffect)(() => {
+      setFlatData(data);
+    }, [data]);
     const selectedValue = flatData[selectedPath];
     return /* @__PURE__ */ import_react7.default.createElement("div", { className: "container py-16" }, /* @__PURE__ */ import_react7.default.createElement("section", { className: "flex gap-2" }, /* @__PURE__ */ import_react7.default.createElement("div", { className: "flex flex-grow flex-col" }, /* @__PURE__ */ import_react7.default.createElement(Label, { htmlFor: "property" }, "Property"), /* @__PURE__ */ import_react7.default.createElement(
       Input,
